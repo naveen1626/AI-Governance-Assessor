@@ -31,7 +31,7 @@ The AI Dual-Use Risk Assessor is a web-based tool that leverages large language 
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/AI_Governance.git
+git clone https://github.com/naveen1626/AI-Governance-Assessor.git
 cd AI_Governance
 
 # Create virtual environment
@@ -182,7 +182,7 @@ If you use this tool in your research, please cite:
 @software{ai_dual_use_risk_assessor,
   title = {AI Dual-Use Risk Assessor: An LLM-Powered Framework for Research Governance},
   year = {2026},
-  url = {https://github.com/YOUR_USERNAME/AI_Governance}
+  url = {https://github.com/naveen1626/AI-Governance-Assessor}
 }
 ```
 
@@ -193,5 +193,5 @@ If you use this tool in your research, please cite:
 
 ## Contact
 
-- Create an [issue](https://github.com/YOUR_USERNAME/AI_Governance/issues) for bug reports or feature requests
-- Join discussions in [Discussions](https://github.com/YOUR_USERNAME/AI_Governance/discussions)
+- Create an [issue](https://github.com/naveen1626/AI-Governance-Assessor/issues) for bug reports or feature requests
+- Join discussions in [Discussions](https://github.com/naveen1626/AI-Governance-Assessor/discussions)

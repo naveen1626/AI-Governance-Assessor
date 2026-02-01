@@ -71,6 +71,7 @@ coverage.xml
 
 # Data files (keep structure but not content)
 data/assessments.json
+data/assessments_backup.json
 
 # Temporary files
 *.tmp
