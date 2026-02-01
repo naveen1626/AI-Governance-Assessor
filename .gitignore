@@ -1,0 +1,97 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment variables (contains API keys!)
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data files (keep structure but not content)
+data/assessments.json
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Report generation artifacts (optional - remove if you want to include)
+# report_figures/
+# *.docx
+
+# Claude Code settings (personal)
+.claude/
+
+# Temporary/test files
+nul
+error.png
+*.pdf
+60_testpapers*.json
+
+# Personal docs
+dashboard-idea1.txt
+risk_assesment_scan.txt
+"Dual use risk evaluation framework.docx"

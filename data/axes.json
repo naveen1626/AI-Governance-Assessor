@@ -1,0 +1,104 @@
+{
+  "universal": true,
+  "axes": [
+    {
+      "id": "A1",
+      "section": "A",
+      "name": "Dangerous Capability Focus",
+      "question": "To what extent does the research enable capabilities that could materially assist biological, chemical, radiological, nuclear (CBRN) or large-scale cyber attacks?",
+      "reverse_scored": false
+    },
+    {
+      "id": "A2",
+      "section": "A",
+      "name": "Operationalization of Harm",
+      "question": "How directly does the output help convert intent into action (e.g., step-by-step protocols, code snippets, automation tools that reduce required expertise)?",
+      "reverse_scored": false
+    },
+    {
+      "id": "B1",
+      "section": "B",
+      "name": "Model/System Accessibility",
+      "question": "How accessible are the main artefacts (models, code, datasets) to non-expert or untrusted users (e.g., fully open weights vs. gated API with strong controls)?",
+      "reverse_scored": false
+    },
+    {
+      "id": "B2",
+      "section": "B",
+      "name": "User Skill Requirement for Misuse",
+      "question": "How little technical or domain expertise is required for a malicious actor to apply the results harmfully (e.g., copy-paste code vs. needing advanced specialist training)?",
+      "reverse_scored": false
+    },
+    {
+      "id": "C1",
+      "section": "C",
+      "name": "Built-in Technical Safeguards",
+      "question": "To what extent does the work implement robust safeguards such as alignment techniques, content filters, abuse monitoring, or access-control mechanisms proportionate to its risk?",
+      "reverse_scored": true
+    },
+    {
+      "id": "C2",
+      "section": "C",
+      "name": "Mitigation and Deployment Plan",
+      "question": "How clearly are mitigation strategies described (e.g., staged release, restricted access for high-risk use cases, monitoring, takedown policies, collaboration with risk experts)?",
+      "reverse_scored": true
+    },
+    {
+      "id": "D1",
+      "section": "D",
+      "name": "Potential Physical/Societal Harm",
+      "question": "If misused at scale, how severe could the plausible worst-case impacts be (e.g., local fraud vs. critical-infrastructure failures, mass casualties, or severe societal disruption)?",
+      "reverse_scored": false
+    },
+    {
+      "id": "D2",
+      "section": "D",
+      "name": "Target Population & Equity Impacts",
+      "question": "To what extent could misuse disproportionately harm vulnerable groups, marginalized communities, or critical social functions (healthcare, elections, finance, law enforcement)?",
+      "reverse_scored": false
+    },
+    {
+      "id": "E1",
+      "section": "E",
+      "name": "Uncertainty About Dual-Use Pathways",
+      "question": "How much unresolved uncertainty is there about plausible misuse pathways or emergent capabilities (e.g., novel domains, rapidly scaling models, or poorly understood interactions)?",
+      "reverse_scored": false
+    },
+    {
+      "id": "E2",
+      "section": "E",
+      "name": "Scalability of Misuse",
+      "question": "If misused, to what extent could the research enable large-scale, automated, or widely replicated harmful actions rather than one-off incidents?",
+      "reverse_scored": false
+    },
+    {
+      "id": "F1",
+      "section": "F",
+      "name": "Export-Control Sensitivity",
+      "question": "Do the model weights, chips, or tools plausibly fall within categories targeted by export controls, or could this work materially lower barriers to reproducing controlled capabilities?",
+      "reverse_scored": false
+    },
+    {
+      "id": "F2",
+      "section": "F",
+      "name": "Regulatory Alignment",
+      "question": "How well does the work align with risk-based regulatory approaches (e.g., EU AI Act, U.S. sectoral regulation)? Could it undercut or support multilateral export-control cooperation?",
+      "reverse_scored": false
+    }
+  ],
+  "sections": {
+    "A": "Capability and Domain",
+    "B": "Accessibility and Diffusion",
+    "C": "Safeguards and Governance",
+    "D": "Impact Scope",
+    "E": "Uncertainty and Ambiguity",
+    "F": "Regulatory Controls & Diffusion"
+  },
+  "scoring_rubric": {
+    "0": "Not relevant / clearly benign / strong controls in place",
+    "1": "Weak signal, indirect concern, or minor gap",
+    "2": "Meaningful concern but mitigated by context or expertise requirements",
+    "3": "Strong, direct concern that substantially raises risk profile"
+  },
+  "reverse_scoring_note": "For reverse-scored axes (C1, C2), higher scores indicate BETTER safeguards, which REDUCE overall risk. The system inverts these when calculating tier."
+}

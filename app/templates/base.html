@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>AI Dual-Use Risk Assessor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        .tier-low { background-color: #10b981; }
+        .tier-medium { background-color: #f59e0b; }
+        .tier-high { background-color: #f97316; }
+        .tier-critical { background-color: #ef4444; }
+
+        .score-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+        }
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .score-0 { width: 0%; background-color: #10b981; }
+        .score-1 { width: 33%; background-color: #84cc16; }
+        .score-2 { width: 66%; background-color: #f59e0b; }
+        .score-3 { width: 100%; background-color: #ef4444; }
+
+        .htmx-request .loading {
+            display: inline-block;
+        }
+        .loading {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">AI Dual-Use Risk Assessor</h1>
+            <p class="text-gray-600 mt-2">Assess research papers for dual-use risks and get governance recommendations</p>
+        </header>
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Page-specific scripts are in index.html -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>

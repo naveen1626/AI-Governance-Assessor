@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Navigation -->
+<div class="mb-6 flex justify-end">
+    <a href="/dashboard" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+        View Dashboard
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Form Column -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Input Research Paper</h2>
+
+            <div id="notifications"></div>
+
+            <!-- Tab Buttons -->
+            <div class="flex mb-4">
+                <button id="url-btn" onclick="switchTab('url')"
+                        class="px-4 py-2 rounded-l-lg bg-blue-600 text-white font-medium">
+                    From URL
+                </button>
+                <button id="manual-btn" onclick="switchTab('manual')"
+                        class="px-4 py-2 rounded-r-lg bg-gray-200 text-gray-700 font-medium">
+                    Manual Entry
+                </button>
+            </div>
+
+            <!-- URL Tab -->
+            <div id="url-tab" class="mb-6">
+                <div class="flex gap-2">
+                    <input type="text" id="url_input"
+                           placeholder="https://arxiv.org/abs/..."
+                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <button onclick="fetchUrl()" id="fetch-btn"
+                            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                        <span id="fetch-loading" class="hidden">...</span>
+                        <span id="fetch-text">Fetch</span>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Supports arXiv, PDF links, and HTML pages</p>
+            </div>
+
+            <!-- Manual Tab (hidden by default) -->
+            <div id="manual-tab" class="hidden">
+                <p class="text-sm text-gray-500 mb-4">Enter paper details manually below</p>
+            </div>
+
+            <!-- Assessment Form -->
+            <form id="assess-form" onsubmit="submitAssessment(event)">
+                <input type="hidden" id="source_url" value="">
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Paper Title</label>
+                    <input type="text" id="title"
+                           placeholder="Enter paper title"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Abstract *</label>
+                    <textarea id="abstract" rows="6" required
+                              placeholder="Paste the paper abstract here..."
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Methods/Contributions (Optional)</label>
+                    <textarea id="snippet" rows="3"
+                              placeholder="Optional: paste key methods or contributions..."
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Intended Dissemination</label>
+                        <select id="dissemination"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="Internal only">Internal only</option>
+                            <option value="Preprint / arXiv only">Preprint / arXiv only</option>
+                            <option value="Conference / journal">Conference / journal</option>
+                            <option value="Open-source code + weights">Open-source code + weights</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Intended Audience</label>
+                        <select id="audience"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="Domain experts only">Domain experts only</option>
+                            <option value="Governance auditor">Governance auditor</option>
+                            <option value="Broad developer community">Broad developer community</option>
+                            <option value="Export control reviewer">Export control reviewer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" id="assess-btn"
+                        class="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors">
+                    <span id="assess-loading" class="hidden mr-2">Assessing...</span>
+                    <span id="assess-text">Assess Dual-Use Risk</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results"></div>
+    </div>
+
+    <!-- History Sidebar -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">History</h2>
+                <button onclick="loadHistory()" class="text-blue-600 hover:text-blue-800 text-sm">
+                    Refresh
+                </button>
+            </div>
+            <div id="history-list">
+                <p class="text-gray-500">Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Category display names
+    const categoryNames = {
+        'biomedical': 'Biomedical / Life Sciences',
+        'semiconductor': 'Semiconductor / AI Hardware',
+        'ai_ml': 'AI / Machine Learning',
+        'cybersecurity': 'Cybersecurity / AI Security',
+        'chemistry': 'Chemistry / Materials Science',
+        'nuclear': 'Nuclear / Radiological'
+    };
+
+    // Load history on page load
+    document.addEventListener('DOMContentLoaded', loadHistory);
+
+    async function fetchUrl() {
+        const urlInput = document.getElementById('url_input').value.trim();
+        if (!urlInput) {
+            showNotification('Please enter a URL', 'error');
+            return;
+        }
+
+        const fetchBtn = document.getElementById('fetch-btn');
+        const fetchLoading = document.getElementById('fetch-loading');
+        const fetchText = document.getElementById('fetch-text');
+
+        fetchBtn.disabled = true;
+        fetchLoading.classList.remove('hidden');
+        fetchText.classList.add('hidden');
+
+        try {
+            const response = await fetch('/api/fetch-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: urlInput })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('title').value = data.title || '';
+                document.getElementById('abstract').value = data.abstract || '';
+                document.getElementById('snippet').value = data.snippet || '';
+                document.getElementById('source_url').value = urlInput;
+                showNotification('Content extracted successfully!', 'success');
+            } else {
+                showNotification(data.error || 'Failed to extract content. Please enter manually.', 'error');
+            }
+        } catch (error) {
+            showNotification('Network error: ' + error.message, 'error');
+        } finally {
+            fetchBtn.disabled = false;
+            fetchLoading.classList.add('hidden');
+            fetchText.classList.remove('hidden');
+        }
+    }
+
+    async function submitAssessment(event) {
+        event.preventDefault();
+
+        const abstract = document.getElementById('abstract').value.trim();
+        if (!abstract) {
+            showNotification('Abstract is required', 'error');
+            return;
+        }
+
+        const assessBtn = document.getElementById('assess-btn');
+        const assessLoading = document.getElementById('assess-loading');
+        const assessText = document.getElementById('assess-text');
+
+        assessBtn.disabled = true;
+        assessLoading.classList.remove('hidden');
+        assessText.classList.add('hidden');
+
+        const payload = {
+            title: document.getElementById('title').value,
+            abstract: abstract,
+            snippet: document.getElementById('snippet').value || null,
+            source_url: document.getElementById('source_url').value || null,
+            dissemination: document.getElementById('dissemination').value,
+            audience: document.getElementById('audience').value
+        };
+
+        try {
+            const response = await fetch('/api/assess', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById('results').innerHTML = renderAssessment(data);
+                document.getElementById('results').classList.add('fade-in');
+                loadHistory(); // Refresh history
+            } else {
+                showNotification(data.detail || 'Assessment failed', 'error');
+            }
+        } catch (error) {
+            showNotification('Network error: ' + error.message, 'error');
+        } finally {
+            assessBtn.disabled = false;
+            assessLoading.classList.add('hidden');
+            assessText.classList.remove('hidden');
+        }
+    }
+
+    async function loadHistory() {
+        try {
+            const response = await fetch('/api/history');
+            const data = await response.json();
+            document.getElementById('history-list').innerHTML = renderHistoryList(data);
+        } catch (error) {
+            document.getElementById('history-list').innerHTML = '<p class="text-red-500">Failed to load history</p>';
+        }
+    }
+
+    async function loadAssessment(id) {
+        try {
+            const response = await fetch(`/api/history/${id}`);
+            const data = await response.json();
+            document.getElementById('results').innerHTML = renderAssessment(data);
+            document.getElementById('results').classList.add('fade-in');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        } catch (error) {
+            showNotification('Failed to load assessment', 'error');
+        }
+    }
+
+    function showNotification(message, type) {
+        const colors = {
+            success: 'bg-green-100 border-green-400 text-green-700',
+            error: 'bg-red-100 border-red-400 text-red-700'
+        };
+        const notif = document.createElement('div');
+        notif.className = `${colors[type]} px-4 py-3 rounded border mb-4 fade-in`;
+        notif.textContent = message;
+        document.getElementById('notifications').appendChild(notif);
+        setTimeout(() => notif.remove(), 5000);
+    }
+
+    function renderAssessment(data) {
+        console.log('=== RENDER ASSESSMENT ===');
+        console.log('Full data:', JSON.stringify(data, null, 2));
+
+        const tierColors = {
+            'Low': 'tier-low',
+            'Medium': 'tier-medium',
+            'High': 'tier-high',
+            'Critical': 'tier-critical'
+        };
+
+        const sectionNames = {
+            'A': 'Capability and Domain',
+            'B': 'Accessibility and Diffusion',
+            'C': 'Safeguards and Governance',
+            'D': 'Impact Scope',
+            'E': 'Uncertainty and Ambiguity',
+            'F': 'Regulatory Controls'
+        };
+
+        // Get scores - try both formats
+        let scoresObj = null;
+        if (data.scores && data.scores.scores) {
+            scoresObj = data.scores.scores;
+            console.log('Using nested format: data.scores.scores');
+        } else if (data.scores) {
+            scoresObj = data.scores;
+            console.log('Using flat format: data.scores');
+        }
+        console.log('scoresObj:', scoresObj);
+
+        // Build axis info lookup
+        let axisInfo = {};
+        if (data.axes_used) {
+            for (let i = 0; i < data.axes_used.length; i++) {
+                const ax = data.axes_used[i];
+                axisInfo[ax.id] = ax;
+            }
+        }
+        console.log('axisInfo:', axisInfo);
+
+        // Build scores HTML
+        let scoresHtml = '';
+        if (scoresObj) {
+            const keys = Object.keys(scoresObj).sort();
+            console.log('Score keys:', keys);
+
+            let lastSection = '';
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
+                const scoreData = scoresObj[key];
+                const info = axisInfo[key] || {};
+
+                const section = info.section || key.charAt(0);
+                const name = info.name || key;
+                const score = scoreData && typeof scoreData.score === 'number' ? scoreData.score : '?';
+                const rationale = scoreData && scoreData.rationale ? scoreData.rationale : 'N/A';
+                const isReverse = info.reverse_scored || (scoreData && scoreData.reverse_scored);
+
+                // Section header
+                if (section !== lastSection) {
+                    if (lastSection) scoresHtml += '</div>';
+                    scoresHtml += '<div class="mb-4"><h4 class="text-sm font-bold text-blue-600 border-b mb-2">' +
+                        'Section ' + section + ': ' + (sectionNames[section] || section) + '</h4>';
+                    lastSection = section;
+                }
+
+                const reverseTag = isReverse ? ' <span class="text-green-600 text-xs">(safeguard)</span>' : '';
+
+                scoresHtml += '<div class="mb-2 pl-2">' +
+                    '<div class="flex justify-between"><span class="text-sm font-medium">' + key + ' - ' + name + reverseTag + '</span>' +
+                    '<span class="text-sm">' + score + '/3</span></div>' +
+                    '<div class="score-bar"><div class="score-fill score-' + score + '"></div></div>' +
+                    '<p class="text-xs text-gray-500">' + rationale + '</p></div>';
+            }
+            if (lastSection) scoresHtml += '</div>';
+        } else {
+            scoresHtml = '<p class="text-red-500">No scores data found</p>';
+        }
+
+        // Get other fields safely
+        const tier = data.tier || 'Unknown';
+        const tierClass = tierColors[tier] || 'tier-medium';
+        const title = (data.input && data.input.title) ? data.input.title : 'Untitled';
+        const category = (data.input && data.input.category) ? data.input.category : null;
+        const categoryDisplay = category ? (categoryNames[category] || category) : 'Unknown';
+        const dissemination = (data.input && data.input.dissemination) ? data.input.dissemination : 'Unknown';
+        const audience = (data.input && data.input.audience) ? data.input.audience : 'Unknown';
+        const timestamp = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Unknown';
+        const assessmentId = data.id || 'Unknown';
+
+        let recsHtml = '';
+        if (data.recommendations && data.recommendations.length > 0) {
+            for (let i = 0; i < data.recommendations.length; i++) {
+                recsHtml += '<li class="mb-1">' + data.recommendations[i] + '</li>';
+            }
+        } else {
+            recsHtml = '<li>No recommendations</li>';
+        }
+        return '<div class="bg-white rounded-lg shadow-lg p-6">' +
+            '<div class="flex items-center justify-between mb-6">' +
+            '<h2 class="text-xl font-bold text-gray-800">Assessment Result</h2>' +
+            '<span class="px-4 py-2 rounded-full text-white font-bold ' + tierClass + '">' + tier.toUpperCase() + '</span>' +
+            '</div>' +
+            '<div class="mb-6">' +
+            '<h3 class="font-semibold text-gray-700 mb-2">Paper: ' + title + '</h3>' +
+            '<p class="text-sm text-gray-500">Assessed: ' + timestamp + '</p>' +
+            '<p class="text-sm text-gray-500">ID: ' + assessmentId + '</p>' +
+            '<p class="text-sm text-blue-600 font-medium">Category: ' + categoryDisplay + ' <span class="text-gray-400 text-xs">(auto-detected)</span></p>' +
+            '</div>' +
+            '<div class="mb-6">' +
+            '<h3 class="font-semibold text-gray-700 mb-4">Risk Scores (12 Axes)</h3>' +
+            scoresHtml +
+            '</div>' +
+            '<div class="mb-6">' +
+            '<h3 class="font-semibold text-gray-700 mb-2">Context</h3>' +
+            '<p class="text-sm text-gray-600">Dissemination: ' + dissemination + '</p>' +
+            '<p class="text-sm text-gray-600">Audience: ' + audience + '</p>' +
+            '</div>' +
+            '<div class="border-t pt-4">' +
+            '<h3 class="font-semibold text-gray-700 mb-2">Governance Recommendations</h3>' +
+            '<ul class="list-disc list-inside text-gray-600">' + recsHtml + '</ul>' +
+            '</div>' +
+            '</div>';
+    }
+
+    function renderHistoryList(assessments) {
+        if (!assessments || assessments.length === 0) {
+            return '<p class="text-gray-500">No assessments yet.</p>';
+        }
+
+        const tierColors = {
+            'Low': 'bg-green-100 text-green-800',
+            'Medium': 'bg-yellow-100 text-yellow-800',
+            'High': 'bg-orange-100 text-orange-800',
+            'Critical': 'bg-red-100 text-red-800'
+        };
+
+        return assessments.map(a => `
+            <div class="bg-white rounded-lg shadow p-4 mb-3 cursor-pointer hover:shadow-md transition-shadow"
+                 onclick="loadAssessment('${a.id}')">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-800 break-words">${a.input.title || 'Untitled'}</h4>
+                        <p class="text-xs text-blue-600">${categoryNames[a.input.category] || a.input.category}</p>
+                        <p class="text-sm text-gray-500">${new Date(a.timestamp).toLocaleString()}</p>
+                    </div>
+                    <span class="px-2 py-1 rounded text-xs font-medium ${tierColors[a.tier]}">
+                        ${a.tier}
+                    </span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function switchTab(tab) {
+        const urlTab = document.getElementById('url-tab');
+        const manualTab = document.getElementById('manual-tab');
+        const urlBtn = document.getElementById('url-btn');
+        const manualBtn = document.getElementById('manual-btn');
+
+        if (tab === 'url') {
+            urlTab.classList.remove('hidden');
+            manualTab.classList.add('hidden');
+            urlBtn.classList.add('bg-blue-600', 'text-white');
+            urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
+            manualBtn.classList.remove('bg-blue-600', 'text-white');
+            manualBtn.classList.add('bg-gray-200', 'text-gray-700');
+        } else {
+            urlTab.classList.add('hidden');
+            manualTab.classList.remove('hidden');
+            manualBtn.classList.add('bg-blue-600', 'text-white');
+            manualBtn.classList.remove('bg-gray-200', 'text-gray-700');
+            urlBtn.classList.remove('bg-blue-600', 'text-white');
+            urlBtn.classList.add('bg-gray-200', 'text-gray-700');
+        }
+    }
+</script>
+{% endblock %}

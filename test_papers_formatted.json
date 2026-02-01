@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Biomedical paper",
+    "expected_category": "biomedical",
+    "title": "CRISPR-Cas9 Gene Editing for Treating Sickle Cell Disease",
+    "abstract": "This study presents a novel CRISPR-Cas9 approach for treating sickle cell disease\n        by correcting the point mutation in the HBB gene. We demonstrate successful in vitro correction\n        in patient-derived hematopoietic stem cells with minimal off-target effects. The edited cells\n        showed restored hemoglobin production and normal red blood cell morphology. Our findings suggest\n        a promising therapeutic avenue for this debilitating genetic disorder.",
+    "dissemination": "Conference / journal",
+    "audience": "Domain experts only"
+  },
+  {
+    "name": "Semiconductor paper",
+    "expected_category": "semiconductor",
+    "title": "A Deep Reinforcement Learning Approach for Global Routing in VLSI Design",
+    "abstract": "Global routing is a critical step in VLSI physical design that determines wire\n        paths connecting circuit components. This paper presents a deep reinforcement learning method\n        for solving the global routing problem. Our approach uses a policy gradient algorithm to learn\n        optimal routing strategies from training on diverse circuit layouts. Experiments show our method\n        achieves 15% improvement in wire length and 20% reduction in routing congestion compared to\n        traditional algorithms on benchmark circuits.",
+    "dissemination": "Preprint / arXiv only",
+    "audience": "Domain experts only"
+  },
+  {
+    "name": "Ai_ml paper",
+    "expected_category": "ai_ml",
+    "title": "Scaling Laws for Large Language Model Training on Distributed Systems",
+    "abstract": "We investigate scaling laws for training large language models across distributed\n        GPU clusters. Our study examines how model performance scales with compute, data, and parameter\n        count when using tensor parallelism and pipeline parallelism. We derive new scaling equations\n        that account for communication overhead and propose optimizations that reduce training time by\n        30% for 100B+ parameter models. Our findings enable more efficient allocation of resources for\n        frontier AI model development.",
+    "dissemination": "Open-source code + weights",
+    "audience": "Broad developer community"
+  },
+  {
+    "name": "Cybersecurity paper",
+    "expected_category": "cybersecurity",
+    "title": "Automated Vulnerability Discovery in IoT Firmware Using Symbolic Execution",
+    "abstract": "Internet of Things devices often contain security vulnerabilities due to resource\n        constraints and limited security testing. We present an automated framework for discovering\n        vulnerabilities in IoT firmware using symbolic execution and taint analysis. Our tool identified\n        47 previously unknown vulnerabilities in popular smart home devices, including buffer overflows\n        and authentication bypasses. We responsibly disclosed all findings to affected vendors.",
+    "dissemination": "Conference / journal",
+    "audience": "Domain experts only"
+  },
+  {
+    "name": "Chemistry paper",
+    "expected_category": "chemistry",
+    "title": "Machine Learning-Guided Synthesis of Novel Energetic Materials",
+    "abstract": "We present a machine learning framework for predicting properties of energetic\n        materials and guiding synthesis of novel compounds. Our model combines graph neural networks\n        with quantum chemistry calculations to predict detonation velocity, sensitivity, and stability.\n        Using active learning, we synthesized three new compounds with improved performance-to-safety\n        ratios compared to existing materials. This approach accelerates discovery while maintaining\n        safety considerations.",
+    "dissemination": "Internal only",
+    "audience": "Domain experts only"
+  },
+  {
+    "name": "Nuclear paper",
+    "expected_category": "nuclear",
+    "title": "Advanced Fuel Cycle Modeling for Next-Generation Nuclear Reactors",
+    "abstract": "This paper presents computational models for fuel cycle optimization in Generation IV\n        nuclear reactors. We develop Monte Carlo simulations for neutronics analysis and couple them with\n        thermal-hydraulic codes to predict reactor behavior under various operating conditions. Our models\n        enable prediction of fuel burnup, actinide production, and proliferation-relevant isotope ratios.\n        Results show potential for improved fuel utilization and reduced waste generation.",
+    "dissemination": "Internal only",
+    "audience": "Domain experts only"
+  }
+]

@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+httpx
+beautifulsoup4
+pypdf
+python-docx
+pydantic
+pydantic-settings
+jinja2
+python-multipart
+
+# LLM Providers (install the one you need)
+anthropic
+openai
+google-generativeai

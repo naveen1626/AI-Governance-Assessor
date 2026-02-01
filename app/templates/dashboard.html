@@ -1,0 +1,563 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mb-6">
+    <!-- Navigation -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Governance Dashboard</h2>
+            <p class="text-gray-600">Risk assessment analytics and insights</p>
+        </div>
+        <a href="/" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            + New Assessment
+        </a>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">Date From</label>
+                <input type="date" id="filter-date-from"
+                       class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">Date To</label>
+                <input type="date" id="filter-date-to"
+                       class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">Category</label>
+                <select id="filter-category" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500">
+                    <option value="all">All Categories</option>
+                    <option value="biomedical">Biomedical</option>
+                    <option value="semiconductor">Semiconductor</option>
+                    <option value="ai_ml">AI / ML</option>
+                    <option value="cybersecurity">Cybersecurity</option>
+                    <option value="chemistry">Chemistry</option>
+                    <option value="nuclear">Nuclear</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">Risk Level</label>
+                <select id="filter-tier" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500">
+                    <option value="all">All Levels</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Critical">Critical</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-4 flex justify-end gap-2">
+            <button onclick="resetFilters()" class="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm border rounded">
+                Reset
+            </button>
+            <button onclick="loadDashboard()" class="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                Apply Filters
+            </button>
+            <button onclick="exportData()" class="px-4 py-2 bg-gray-600 text-white rounded text-sm hover:bg-gray-700">
+                Export CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Tiles Row 1 -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <!-- Total Assessed -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Assessed</div>
+            <div class="text-3xl font-bold text-gray-800 mt-1" id="kpi-total">-</div>
+            <div class="text-xs text-gray-400 mt-1">papers</div>
+        </div>
+
+        <!-- High + Critical % -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-xs font-medium text-gray-500 uppercase tracking-wide">High + Critical</div>
+            <div class="text-3xl font-bold text-red-600 mt-1" id="kpi-high-critical-pct">-</div>
+            <div class="text-xs text-gray-400 mt-1"><span id="kpi-high-critical-count">0</span> papers</div>
+        </div>
+
+        <!-- Top High-Risk Category -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-xs font-medium text-gray-500 uppercase tracking-wide">Top High-Risk Domain</div>
+            <div class="text-lg font-bold text-orange-600 mt-1 truncate" id="kpi-top-risk-category">-</div>
+            <div class="text-xs text-gray-400 mt-1">most high-risk papers</div>
+        </div>
+
+        <!-- Capability Index -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-xs font-medium text-gray-500 uppercase tracking-wide">Capability Index</div>
+            <div class="text-3xl font-bold text-purple-600 mt-1" id="kpi-capability">-</div>
+            <div class="text-xs text-gray-400 mt-1">avg A1,A2,D1,D2</div>
+        </div>
+
+        <!-- Safeguard Index -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="text-xs font-medium text-gray-500 uppercase tracking-wide">Safeguard Index</div>
+            <div class="text-3xl font-bold mt-1" id="kpi-safeguard">-</div>
+            <div class="text-xs mt-1" id="kpi-gap-indicator">Gap: -</div>
+        </div>
+    </div>
+
+    <!-- Risk Distribution Tiles -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-green-50 border-l-4 border-green-500 rounded-lg shadow p-4 cursor-pointer hover:bg-green-100" onclick="filterByTier('Low')">
+            <div class="text-xs font-medium text-green-700 uppercase">Low Risk</div>
+            <div class="text-2xl font-bold text-green-600 mt-1" id="kpi-low">-</div>
+        </div>
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg shadow p-4 cursor-pointer hover:bg-yellow-100" onclick="filterByTier('Medium')">
+            <div class="text-xs font-medium text-yellow-700 uppercase">Medium Risk</div>
+            <div class="text-2xl font-bold text-yellow-600 mt-1" id="kpi-medium">-</div>
+        </div>
+        <div class="bg-orange-50 border-l-4 border-orange-500 rounded-lg shadow p-4 cursor-pointer hover:bg-orange-100" onclick="filterByTier('High')">
+            <div class="text-xs font-medium text-orange-700 uppercase">High Risk</div>
+            <div class="text-2xl font-bold text-orange-600 mt-1" id="kpi-high">-</div>
+        </div>
+        <div class="bg-red-50 border-l-4 border-red-500 rounded-lg shadow p-4 cursor-pointer hover:bg-red-100" onclick="filterByTier('Critical')">
+            <div class="text-xs font-medium text-red-700 uppercase">Critical Risk</div>
+            <div class="text-2xl font-bold text-red-600 mt-1" id="kpi-critical">-</div>
+        </div>
+    </div>
+
+    <!-- Charts and Analytics Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Section Averages Chart -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="text-sm font-bold text-gray-700 mb-4">Risk by Section (A-F)</h3>
+            <div id="section-chart" class="space-y-3">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Most Stressed Axis & Recent High-Risk -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="text-sm font-bold text-gray-700 mb-4">Key Insights</h3>
+
+            <!-- Most Stressed Axis -->
+            <div class="mb-4 p-3 bg-red-50 rounded-lg">
+                <div class="text-xs text-red-600 font-medium uppercase">Most Stressed Axis</div>
+                <div class="text-lg font-bold text-red-700" id="insight-stressed-axis">-</div>
+                <div class="text-xs text-red-500" id="insight-stressed-score">avg score: -</div>
+            </div>
+
+            <!-- Governance Gap -->
+            <div class="mb-4 p-3 bg-purple-50 rounded-lg">
+                <div class="text-xs text-purple-600 font-medium uppercase">Governance Gap Analysis</div>
+                <div class="flex items-center gap-4 mt-2">
+                    <div class="text-center">
+                        <div class="text-sm text-gray-500">Capability</div>
+                        <div class="text-xl font-bold text-purple-700" id="insight-capability">-</div>
+                    </div>
+                    <div class="text-2xl text-gray-400">vs</div>
+                    <div class="text-center">
+                        <div class="text-sm text-gray-500">Safeguard</div>
+                        <div class="text-xl font-bold text-green-600" id="insight-safeguard">-</div>
+                    </div>
+                    <div class="text-center ml-4 pl-4 border-l">
+                        <div class="text-sm text-gray-500">Gap</div>
+                        <div class="text-xl font-bold" id="insight-gap">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent High-Risk Paper -->
+            <div class="p-3 bg-orange-50 rounded-lg">
+                <div class="text-xs text-orange-600 font-medium uppercase">Latest High-Risk Paper</div>
+                <div class="text-sm font-medium text-gray-800 mt-1 truncate" id="insight-recent-title">-</div>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-xs px-2 py-0.5 rounded" id="insight-recent-tier">-</span>
+                    <span class="text-xs text-gray-500" id="insight-recent-category">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Distribution -->
+    <div class="bg-white rounded-lg shadow p-4 mb-6">
+        <h3 class="text-sm font-bold text-gray-700 mb-4">Papers by Category</h3>
+        <div id="category-chart" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Assessment History Table -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b">
+            <h3 class="text-sm font-bold text-gray-700">Assessment History</h3>
+            <p class="text-xs text-gray-500">Click a row to view details</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Risk Level</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body" class="divide-y divide-gray-200">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+        <div class="p-4 border-t flex justify-between items-center">
+            <div class="text-sm text-gray-500">
+                Showing <span id="showing-count">0</span> of <span id="total-count">0</span> assessments
+            </div>
+            <div class="flex gap-2">
+                <button id="prev-btn" onclick="prevPage()" disabled class="px-3 py-1 border rounded text-sm disabled:opacity-50">Previous</button>
+                <button id="next-btn" onclick="nextPage()" class="px-3 py-1 border rounded text-sm disabled:opacity-50">Next</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white">
+            <h3 class="font-bold text-gray-800">Assessment Details</h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+        <div id="modal-content" class="p-4">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</div>
+
+<script>
+    const categoryNames = {
+        'biomedical': 'Biomedical',
+        'semiconductor': 'Semiconductor',
+        'ai_ml': 'AI / ML',
+        'cybersecurity': 'Cybersecurity',
+        'chemistry': 'Chemistry',
+        'nuclear': 'Nuclear'
+    };
+
+    const sectionNames = {
+        'A': 'Capability & Domain',
+        'B': 'Accessibility',
+        'C': 'Safeguards',
+        'D': 'Impact Scope',
+        'E': 'Uncertainty',
+        'F': 'Regulatory'
+    };
+
+    const axisNames = {
+        'A1': 'Dangerous Capability', 'A2': 'Operationalization',
+        'B1': 'Accessibility', 'B2': 'Skill Requirement',
+        'C1': 'Technical Safeguards', 'C2': 'Mitigation Plan',
+        'D1': 'Physical/Societal Harm', 'D2': 'Target Population',
+        'E1': 'Pathway Uncertainty', 'E2': 'Scalability',
+        'F1': 'Export Control', 'F2': 'Regulatory Alignment'
+    };
+
+    let currentOffset = 0;
+    const pageSize = 20;
+    let totalAssessments = 0;
+
+    // Initialize with default dates (last 2 days)
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set default date range to last 2 days
+        const today = new Date();
+        const twoDaysAgo = new Date(today);
+        twoDaysAgo.setDate(today.getDate() - 2);
+
+        document.getElementById('filter-date-from').value = twoDaysAgo.toISOString().split('T')[0];
+        document.getElementById('filter-date-to').value = today.toISOString().split('T')[0];
+
+        loadDashboard();
+    });
+
+    function getFilters() {
+        return {
+            date_from: document.getElementById('filter-date-from').value || undefined,
+            date_to: document.getElementById('filter-date-to').value || undefined,
+            category: document.getElementById('filter-category').value,
+            tier: document.getElementById('filter-tier').value
+        };
+    }
+
+    function buildQueryString(filters) {
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([k, v]) => {
+            if (v && v !== 'all') params.append(k, v);
+        });
+        return params.toString();
+    }
+
+    async function loadDashboard() {
+        const filters = getFilters();
+        const query = buildQueryString(filters);
+
+        try {
+            // Load stats
+            const statsRes = await fetch(`/api/dashboard/stats?${query}`);
+            if (!statsRes.ok) {
+                console.error('Stats API error:', await statsRes.text());
+                return;
+            }
+            const stats = await statsRes.json();
+            updateKPIs(stats);
+            updateCharts(stats);
+            updateInsights(stats);
+
+            // Load assessments
+            const assessQuery = `${query}&limit=${pageSize}&offset=${currentOffset}`;
+            const assessRes = await fetch(`/api/dashboard/assessments?${assessQuery}`);
+            if (!assessRes.ok) {
+                console.error('Assessments API error:', await assessRes.text());
+                return;
+            }
+            const assessData = await assessRes.json();
+            totalAssessments = assessData.total;
+            updateTable(assessData.assessments);
+            updatePagination();
+        } catch (err) {
+            console.error('Dashboard load error:', err);
+        }
+    }
+
+    function updateKPIs(stats) {
+        document.getElementById('kpi-total').textContent = stats.total_assessed;
+        document.getElementById('kpi-high-critical-pct').textContent = stats.high_critical_percentage + '%';
+        document.getElementById('kpi-high-critical-count').textContent = stats.high_critical_count;
+        document.getElementById('kpi-top-risk-category').textContent = categoryNames[stats.top_high_risk_category] || stats.top_high_risk_category || 'N/A';
+        document.getElementById('kpi-capability').textContent = stats.capability_index.toFixed(1);
+        document.getElementById('kpi-safeguard').textContent = stats.safeguard_index.toFixed(1);
+
+        const gap = stats.governance_gap;
+        const gapEl = document.getElementById('kpi-gap-indicator');
+        const safeguardEl = document.getElementById('kpi-safeguard');
+        if (gap > 0.5) {
+            gapEl.className = 'text-xs mt-1 text-red-600 font-medium';
+            gapEl.textContent = `Gap: +${gap.toFixed(1)} (risk outpacing governance)`;
+            safeguardEl.className = 'text-3xl font-bold mt-1 text-red-600';
+        } else if (gap < -0.5) {
+            gapEl.className = 'text-xs mt-1 text-green-600 font-medium';
+            gapEl.textContent = `Gap: ${gap.toFixed(1)} (well governed)`;
+            safeguardEl.className = 'text-3xl font-bold mt-1 text-green-600';
+        } else {
+            gapEl.className = 'text-xs mt-1 text-gray-500';
+            gapEl.textContent = `Gap: ${gap.toFixed(1)} (balanced)`;
+            safeguardEl.className = 'text-3xl font-bold mt-1 text-blue-600';
+        }
+
+        document.getElementById('kpi-low').textContent = stats.risk_distribution.Low || 0;
+        document.getElementById('kpi-medium').textContent = stats.risk_distribution.Medium || 0;
+        document.getElementById('kpi-high').textContent = stats.risk_distribution.High || 0;
+        document.getElementById('kpi-critical').textContent = stats.risk_distribution.Critical || 0;
+    }
+
+    function updateCharts(stats) {
+        // Section chart
+        const sectionChart = document.getElementById('section-chart');
+        const sectionColors = {
+            'A': 'bg-purple-500', 'B': 'bg-blue-500', 'C': 'bg-green-500',
+            'D': 'bg-orange-500', 'E': 'bg-yellow-500', 'F': 'bg-red-500'
+        };
+        sectionChart.innerHTML = Object.entries(stats.section_averages).map(([section, avg]) => {
+            const pct = (avg / 3 * 100).toFixed(0);
+            return `
+                <div class="flex items-center gap-3">
+                    <div class="w-24 text-xs text-gray-600">${section}: ${sectionNames[section] || section}</div>
+                    <div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="${sectionColors[section]} h-full rounded-full transition-all" style="width: ${pct}%"></div>
+                    </div>
+                    <div class="w-10 text-xs text-right text-gray-600">${avg.toFixed(1)}</div>
+                </div>
+            `;
+        }).join('');
+
+        // Category chart
+        const categoryChart = document.getElementById('category-chart');
+        const total = stats.total_assessed || 1;
+        categoryChart.innerHTML = Object.entries(stats.category_distribution).map(([cat, count]) => {
+            const pct = (count / total * 100).toFixed(0);
+            return `
+                <div class="p-3 bg-gray-50 rounded-lg text-center cursor-pointer hover:bg-gray-100" onclick="filterByCategory('${cat}')">
+                    <div class="text-lg font-bold text-gray-800">${count}</div>
+                    <div class="text-xs text-gray-500">${categoryNames[cat] || cat}</div>
+                    <div class="text-xs text-blue-600">${pct}%</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function updateInsights(stats) {
+        // Most stressed axis
+        const stressed = stats.most_stressed_axis;
+        document.getElementById('insight-stressed-axis').textContent =
+            stressed.axis ? `${stressed.axis} - ${axisNames[stressed.axis] || stressed.axis}` : 'N/A';
+        document.getElementById('insight-stressed-score').textContent =
+            stressed.average ? `avg score: ${stressed.average.toFixed(2)}` : '';
+
+        // Governance gap
+        document.getElementById('insight-capability').textContent = stats.capability_index.toFixed(2);
+        document.getElementById('insight-safeguard').textContent = stats.safeguard_index.toFixed(2);
+        const gapEl = document.getElementById('insight-gap');
+        const gap = stats.governance_gap;
+        gapEl.textContent = (gap >= 0 ? '+' : '') + gap.toFixed(2);
+        gapEl.className = 'text-xl font-bold ' + (gap > 0 ? 'text-red-600' : 'text-green-600');
+
+        // Recent high-risk
+        const recent = stats.recent_high_risk;
+        if (recent) {
+            document.getElementById('insight-recent-title').textContent = recent.title;
+            const tierEl = document.getElementById('insight-recent-tier');
+            tierEl.textContent = recent.tier;
+            tierEl.className = 'text-xs px-2 py-0.5 rounded ' +
+                (recent.tier === 'Critical' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700');
+            document.getElementById('insight-recent-category').textContent = categoryNames[recent.category] || recent.category;
+        } else {
+            document.getElementById('insight-recent-title').textContent = 'No high-risk papers';
+            document.getElementById('insight-recent-tier').textContent = '-';
+            document.getElementById('insight-recent-category').textContent = '';
+        }
+    }
+
+    function updateTable(assessments) {
+        const tbody = document.getElementById('history-table-body');
+        const tierColors = {
+            'Low': 'bg-green-100 text-green-700',
+            'Medium': 'bg-yellow-100 text-yellow-700',
+            'High': 'bg-orange-100 text-orange-700',
+            'Critical': 'bg-red-100 text-red-700'
+        };
+
+        if (!assessments || assessments.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-gray-500">No assessments found for the selected filters</td></tr>';
+            document.getElementById('showing-count').textContent = 0;
+            document.getElementById('total-count').textContent = 0;
+            return;
+        }
+
+        tbody.innerHTML = assessments.map(a => `
+            <tr class="hover:bg-gray-50 cursor-pointer" onclick="showDetail('${a.id}')">
+                <td class="px-4 py-3 text-gray-500">${new Date(a.timestamp).toLocaleDateString()}</td>
+                <td class="px-4 py-3 font-medium text-gray-800 max-w-xs truncate">${a.input?.title || 'Untitled'}</td>
+                <td class="px-4 py-3 text-gray-600">${categoryNames[a.input?.category] || a.input?.category || '-'}</td>
+                <td class="px-4 py-3">
+                    <span class="px-2 py-1 rounded text-xs font-medium ${tierColors[a.tier]}">${a.tier}</span>
+                </td>
+            </tr>
+        `).join('');
+
+        document.getElementById('showing-count').textContent = assessments.length;
+        document.getElementById('total-count').textContent = totalAssessments;
+    }
+
+    function updatePagination() {
+        document.getElementById('prev-btn').disabled = currentOffset === 0;
+        document.getElementById('next-btn').disabled = currentOffset + pageSize >= totalAssessments;
+    }
+
+    function prevPage() {
+        if (currentOffset > 0) {
+            currentOffset -= pageSize;
+            loadDashboard();
+        }
+    }
+
+    function nextPage() {
+        if (currentOffset + pageSize < totalAssessments) {
+            currentOffset += pageSize;
+            loadDashboard();
+        }
+    }
+
+    function filterByTier(tier) {
+        document.getElementById('filter-tier').value = tier;
+        currentOffset = 0;
+        loadDashboard();
+    }
+
+    function filterByCategory(cat) {
+        document.getElementById('filter-category').value = cat;
+        currentOffset = 0;
+        loadDashboard();
+    }
+
+    function resetFilters() {
+        // Reset to last 2 days
+        const today = new Date();
+        const twoDaysAgo = new Date(today);
+        twoDaysAgo.setDate(today.getDate() - 2);
+
+        document.getElementById('filter-date-from').value = twoDaysAgo.toISOString().split('T')[0];
+        document.getElementById('filter-date-to').value = today.toISOString().split('T')[0];
+        document.getElementById('filter-category').value = 'all';
+        document.getElementById('filter-tier').value = 'all';
+        currentOffset = 0;
+        loadDashboard();
+    }
+
+    async function showDetail(id) {
+        const res = await fetch(`/api/history/${id}`);
+        const data = await res.json();
+
+        const tierColors = {
+            'Low': 'bg-green-100 text-green-700',
+            'Medium': 'bg-yellow-100 text-yellow-700',
+            'High': 'bg-orange-100 text-orange-700',
+            'Critical': 'bg-red-100 text-red-700'
+        };
+
+        let scoresHtml = '';
+        let scores = data.scores?.scores || data.scores || {};
+        Object.entries(scores).sort((a, b) => a[0].localeCompare(b[0])).forEach(([axis, info]) => {
+            const pct = (info.score / 3 * 100);
+            const color = info.score === 0 ? 'bg-green-500' : info.score === 1 ? 'bg-yellow-500' : info.score === 2 ? 'bg-orange-500' : 'bg-red-500';
+            scoresHtml += `
+                <div class="mb-2">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="font-medium">${axis} - ${axisNames[axis] || axis}${info.reverse_scored ? ' (safeguard)' : ''}</span>
+                        <span>${info.score}/3</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full">
+                        <div class="${color} h-full rounded-full" style="width: ${pct}%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">${info.rationale}</p>
+                </div>
+            `;
+        });
+
+        document.getElementById('modal-content').innerHTML = `
+            <div class="mb-4">
+                <span class="px-3 py-1 rounded-full text-sm font-bold ${tierColors[data.tier]}">${data.tier}</span>
+                <span class="text-sm text-gray-500 ml-2">${new Date(data.timestamp).toLocaleString()}</span>
+            </div>
+            <h4 class="font-bold text-lg text-gray-800 mb-2">${data.input?.title || 'Untitled'}</h4>
+            <p class="text-sm text-blue-600 mb-4">${categoryNames[data.input?.category] || data.input?.category || 'Unknown'} (auto-detected)</p>
+            <div class="bg-gray-50 p-3 rounded mb-4">
+                <p class="text-xs text-gray-600"><strong>Abstract:</strong> ${data.input?.abstract?.substring(0, 300)}...</p>
+            </div>
+            <h5 class="font-bold text-gray-700 mb-3">Risk Scores (12 Axes)</h5>
+            ${scoresHtml}
+            <h5 class="font-bold text-gray-700 mt-4 mb-2">Recommendations</h5>
+            <ul class="list-disc list-inside text-sm text-gray-600">
+                ${(data.recommendations || []).map(r => `<li>${r}</li>`).join('')}
+            </ul>
+        `;
+        document.getElementById('detail-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('detail-modal').classList.add('hidden');
+    }
+
+    function exportData() {
+        const filters = getFilters();
+        const query = buildQueryString(filters);
+        window.open(`/api/dashboard/assessments?${query}&limit=1000`, '_blank');
+    }
+
+    // Close modal on escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
+</script>
+{% endblock %}
