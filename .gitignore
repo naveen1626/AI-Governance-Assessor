@@ -91,7 +91,36 @@ error.png
 *.pdf
 60_testpapers*.json
 
+# Sensitive test files (contain dual-use research examples)
+tests/test_multi_category_assessments.py
+tests/test_categories.py
+test_categories.py
+sample_papers.py
+test_papers_formatted.json
+temp_response.json
+
 # Personal docs
 dashboard-idea1.txt
 risk_assesment_scan.txt
 "Dual use risk evaluation framework.docx"
+test_papers_formatted.json
+sample_papers.py
+temp_response.json
+test_categories.py
+AI_Dual_Use_Risk_Assessor_Report_Final.docx"
+60_testpapers.json
+60_testpapers_flat.json
+add_figures_to_report.py
+AI_Dual_Use_Risk_Assessor_Report.docx
+CLAUDE.md
+create_report.py
+dashboard-idea1.txt
+AIProjectsAI_Governanceappmain.py
+error.png
+fetch_ai4eda_abstracts.py
+generate_report_charts.py
+jsonflatten.py
+Report_template_apart.docx"
+"Mapping Escalation_ Turn-by-Turn Detection of Manipulation Accumulation in Multi-Turn AI Conversations.pdf"
+nul"
+PROJECT_PAPER.md
